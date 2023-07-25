@@ -1,41 +1,56 @@
 // content.js
 // ページが読み込まれたときに実行
 window.onload = function() {
-  let horseData = [];
+  const horseData = [];
   // 全ての馬リストを取得
-  let horseList = document.querySelectorAll('.HorseList');
+  const horseList = document.querySelectorAll('.HorseList');
 
   horseList.forEach((row, index) => {
-    let horse = {};
+    const horse = {};
 
     // 枠番を取得
-    horse['frameNumber'] = row.querySelector(`.Waku${index + 1}`).textContent;
+    horse['frameNumber'] = row.querySelector(`[class^='Waku']`).textContent.trim();
 
     // 馬番を取得
-    horse['horseNumber'] = row.querySelector(`.Umaban${index + 1}`).textContent;
+    horse['horseNumber'] = row.querySelector(`[class^='Umaban']`).textContent.trim();
 
     // 馬名とそのリンクを取得
-    let horseNameElement = row.querySelector('.HorseName > a');
-    horse['horseName'] = horseNameElement.textContent;
+    const horseNameElement = row.querySelector('.HorseName > a');
+    horse['horseName'] = horseNameElement.textContent.trim();
     horse['horseLink'] = horseNameElement.href;
 
     // 馬の年齢と性別を取得
-    horse['ageAndSex'] = row.querySelector('.Age').textContent;
+    horse['ageAndSex'] = row.querySelector('.Age').textContent.trim();
 
     // 馬の体重を取得
-    let weightElement = row.querySelector('.Weight');
-    horse['weight'] = weightElement ? weightElement.textContent : '';
+    const weightElement = row.querySelector('.Weight');
+    if (weightElement) {
+      const weightText = weightElement.textContent.replace(/\n/g, '');
+      const weightMatch = weightText.match(/(\d+)\(([-\+]?[^\)]*)\)/);
+      if (weightMatch) {
+        horse['weight'] = weightMatch[1]; // 馬の体重
+        horse['weightChange'] = weightMatch[2]; // 体重の変化
+      } else {
+        horse['weight'] = weightText;
+        horse['weightChange'] = '';
+      }
+    } else {
+      horse['weight'] = '';
+      horse['weightChange'] = '';
+    }
+    // horse['weight'] = weightElement ? weightElement.textContent.trim() : '';
 
     // ジョッキーの名前とそのリンクを取得
-    let jockeyElement = row.querySelector('.Jockey > a');
-    horse['jockeyName'] = jockeyElement.textContent;
-    horse['jockeyLink'] = jockeyElement.href;
+    const jockeyElement = row.querySelector('.Jockey > a');
+    horse['jockeyName'] = jockeyElement.textContent.trim();
+    horse['jockeyLink'] = jockeyElement.href.trim();
 
     // 人気と順位を取得
-    horse['popularity'] = row.querySelector('.Popular .Txt_R').textContent;
-    horse['rank'] = row.querySelector('.Popular .Txt_C').textContent;
+    horse['odds'] = row.querySelector('.Popular.Txt_R').textContent.trim();
+    horse['popularityRanking'] = row.querySelector('.Popular.Txt_C').textContent.trim();
 
     horseData.push(horse);
+
   });
 
   // JSON形式で出力
